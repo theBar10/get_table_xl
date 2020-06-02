@@ -24,10 +24,18 @@ The outer for loop (i) sets the number of rows to get the values from.
 The inner for loop (n) sets the number of columns to get the values from.
 With each for loop the first integer in the range is the cell number to start with, it must start with 1 or higher (zero doesn't equal one).
 The second integer in the range for the loops is the number of rows or columns that are to be looped through.
+Note: if the first digit in the column loop (i.e. currently it is a 2) the index will also need to be changed.
 """
 
-for i in range (5, 10): 
-    for n in range (2, 74): 
+for i in range (5, 6): #for the fixed row of dates at the top of the sheet
+    for n in range (2, 74): #for the columns and width of the table
+        data = ([])
+        data.append(sheet.cell(row = i, column = n).value)
+        myDict.setdefault(n, []).append(data)
+
+        
+for i in range (6, 10): #change for different rows of data
+    for n in range (2, 74): #must be the same as the loop above
         data = ([])
         data.append(sheet.cell(row = i, column = n).value)
         myDict.setdefault(n, []).append(data)
