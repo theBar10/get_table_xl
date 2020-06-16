@@ -2,7 +2,7 @@ import openpyxl
 import pandas as pd
 
 
-wb = openpyxl.load_workbook(r'filepath.xlsm', data_only = True)
+wb = openpyxl.load_workbook(r'C:\Users\tbarten\Desktop\Projects\Cost_Productivity\PyRun\2020 EFCO Productivity.xlsm', data_only = True)
 """
 To use with a different file, change the file path in the above assignment for wb. Use r' to read the file.
 Using data_only allows for the script to pull the calculated value in Excel, without it it will show the underlining formula
@@ -12,7 +12,7 @@ Commented out print(wb.get_sheet_names()) to only use when I need to check the s
 
 
 #selecting the tab from the excel file that I want to work in; tab name is a string; keep it in ('')
-sheet = wb.get_sheet_by_name('worksheet_name')
+sheet = wb.get_sheet_by_name('Actual Drivers')
 
 myDict = {}
 
@@ -24,18 +24,22 @@ The outer for loop (i) sets the number of rows to get the values from.
 The inner for loop (n) sets the number of columns to get the values from.
 With each for loop the first integer in the range is the cell number to start with, it must start with 1 or higher (zero doesn't equal one).
 The second integer in the range for the loops is the number of rows or columns that are to be looped through.
-Note: if the first digit in the column loop (i.e. currently it is a 2) the index will also need to be changed.
 """
 
-for i in range (5, 6): #for the fixed row of dates at the top of the sheet
-    for n in range (2, 74): #for the columns and width of the table
+table_name = "Reissues"  #don't forget to change the soved file name
+table_start = 6
+table_end = 11
+
+
+for i in range (5, 6): #for the fixed row of dates
+    for n in range (2, 74): 
         data = ([])
         data.append(sheet.cell(row = i, column = n).value)
         myDict.setdefault(n, []).append(data)
 
         
-for i in range (6, 10): #change for different rows of data
-    for n in range (2, 74): #must be the same as the loop above
+for i in range (table_start, table_end): 
+    for n in range (2, 74): 
         data = ([])
         data.append(sheet.cell(row = i, column = n).value)
         myDict.setdefault(n, []).append(data)
@@ -68,7 +72,7 @@ This for loop gets the string of list, effectively removing the square brackets 
 df=df.set_index([2]).stack().unstack([0]).reset_index()
 df=df.rename(columns={None:'Dates'})
 df=df.melt(id_vars = ['index', 'Dates'])
-df=df.rename(columns={2:'RI_Type'})
+df=df.rename(columns={2:table_name})
 """
 I am sure there is a much cleaner way to reshape a long data set that has a column and row that need to be indexed.
 Either way, I modified the data into a long form with stack, then I unstacked what was the first row, then I used those
@@ -85,7 +89,7 @@ The doesn't equal removes or filters out that calculation.
 
 print(df.head())
 
-df.to_csv(r'newfilepath.csv')
+df.to_csv(r'C:\Users\tbarten\Desktop\Projects\Cost_Productivity\PyRun\Reissue2020.csv')
 
 """
 I like to display the top rows of the of the dataframe (i.e. print(df.head())) so that I have a heads up
