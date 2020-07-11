@@ -2,7 +2,7 @@ import openpyxl
 import pandas as pd
 
 
-wb = openpyxl.load_workbook(r'C:\Users\tbarten\Desktop\Projects\Cost_Productivity\PyRun\2020 EFCO Productivity.xlsm', data_only = True)
+wb = openpyxl.load_workbook(r'C:\Users\tbarten\Desktop\Projects\Cost_Productivity\2020 EFCO Productivity.xlsm', data_only = True)
 """
 To use with a different file, change the file path in the above assignment for wb. Use r' to read the file.
 Using data_only allows for the script to pull the calculated value in Excel, without it it will show the underlining formula
@@ -99,6 +99,7 @@ for table in atable_dict:
     df=df.rename(columns={2:group})
     df=df.rename(columns={'value':uom})
     
+        
     """The data set had this reoccurring month to date (MTD) 
     and year to date (YTD) calculation in it that was not needed. 
     The doesn't equal removes or filters out that calculation."""
@@ -106,7 +107,8 @@ for table in atable_dict:
     df=df[df.Dates != 'YTD']
     
     df.fillna(0) #making null values zero
-    
+    """Adding in a new column with a repeating value to separate budget data from actual data"""    
+    df=df.assign(productivity='Actual')
     #print(df.info())
     
     """save the reshaped dataframe and changed the name to dynamically align with dict key"""
@@ -202,6 +204,9 @@ for table in btable_dict:
     
     df=df.rename(columns={2:group})
     df=df.rename(columns={'value':uom})
+    
+    """Adding in a new column with a repeating value to separate budget data from actual data"""
+    df=df.assign(productivity='Budget')
     
     """The data set had this reoccurring month to date (MTD) 
     and year to date (YTD) calculation in it that was not needed. 
