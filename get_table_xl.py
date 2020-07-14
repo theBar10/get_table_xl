@@ -1,8 +1,9 @@
 import openpyxl
 import pandas as pd
 
-
-wb = openpyxl.load_workbook(r'C:\Users\tbarten\Desktop\Projects\Cost_Productivity\2020 EFCO Productivity.xlsm', data_only = True)
+print("loading workbook...")
+wb = openpyxl.load_workbook(r'C:\Users\tbarten\Desktop\Projects\Cost_Productivity\2019 EFCO Productivity.xlsm', data_only = True)
+print("workbook loaded")
 """
 To use with a different file, change the file path in the above assignment for wb. Use r' to read the file.
 Using data_only allows for the script to pull the calculated value in Excel, without it it will show the underlining formula
@@ -55,6 +56,7 @@ atable_dict = \
 
 
 for table in atable_dict:
+    print("starting actual {}...".format(table))
     myDict = {}
     for i in range (5, 6): #for the fixed row of dates
             for n in range (2, 74): 
@@ -77,12 +79,14 @@ for table in atable_dict:
     """Pandas (pd) are easier to work with when reshaping data for analysis.
     I wanted to use the pandas dataframe to wrangle the data."""    
     df = pd.DataFrame.from_dict(myDict)
+    print("dict version of {} table is now a df".format(table))
+    print("row {} to {}".format(atable_dict[table]['first'], atable_dict[table]['last']))
     
     """"Since I created the dataframe out of list of list I was stuck with square brackets
     This for loop gets the string of list, effectively removing the square brackets from the dataframe."""
     for r in df:
         df[r] = df[r].str.get(0)
-    
+    print("droped brackets from df.{}".format(table))
  
     """I am sure there is a much cleaner way to reshape a long data set that has a column and row that need to be indexed.
     Either way, I modified the data into a long form with stack, then I unstacked what was the first row, then I used those
@@ -98,21 +102,23 @@ for table in atable_dict:
     
     df=df.rename(columns={2:group})
     df=df.rename(columns={'value':uom})
-    
+    print("columns have been renamed")
         
     """The data set had this reoccurring month to date (MTD) 
     and year to date (YTD) calculation in it that was not needed. 
     The doesn't equal removes or filters out that calculation."""
     df=df[df.Dates != 'MTD']
     df=df[df.Dates != 'YTD']
+    print("droped 'MTD' and YTD' columns")
     
     df.fillna(0) #making null values zero
-    """Adding in a new column with a repeating value to separate budget data from actual data"""    
+    """adding in a new column with a repeating value to seperate budgets from actuals"""    
     df=df.assign(productivity='Actual')
     #print(df.info())
     
     """save the reshaped dataframe and changed the name to dynamically align with dict key"""
-    df.to_csv(r'C:\Users\tbarten\Desktop\Projects\Cost_Productivity\PyRun\Actual 2020 {0}.csv'.format(table))
+    df.to_csv(r'C:\Users\tbarten\Desktop\Projects\Cost_Productivity\PyRun\Actual 2019 {0}.csv'.format(table))
+    print("finished actual {}".format(table))
 
 """Just repeating the entire process but with a different sheet name. 
 This could have been done with another loop but the tables are in slightly different locations so I thought it
@@ -161,6 +167,7 @@ btable_dict = \
 
 
 for table in btable_dict:
+    print("starting budget {}...".format(table))
     myDict = {}
     for i in range (5, 6): #for the fixed row of dates
             for n in range (2, 74): 
@@ -174,6 +181,7 @@ for table in btable_dict:
             data = ([])
             data.append(sheet_b.cell(row = i, column = n).value)
             myDict.setdefault(n, []).append(data)
+            
 
     delete = (3,4,5,6,7)
 
@@ -183,20 +191,25 @@ for table in btable_dict:
     """Pandas (pd) are easier to work with when reshaping data for analysis.
     I wanted to use the pandas dataframe to wrangle the data."""    
     df = pd.DataFrame.from_dict(myDict)
+    print("dict version of {} table is now a df".format(table))
+    print("row {} to {}".format(btable_dict[table]['first'], btable_dict[table]['last']))
     
     """"Since I created the dataframe out of list of list I was stuck with square brackets
     This for loop gets the string of list, effectively removing the square brackets from the dataframe."""
     for r in df:
         df[r] = df[r].str.get(0)
-    
+    print("droped brackets from df.{}".format(table))
     #print(df.head())
     """I am sure there is a much cleaner way to reshape a long data set that has a column and row that need to be indexed.
     Either way, I modified the data into a long form with stack, then I unstacked what was the first row, then I used those
-    two columns to 'melt' the data into the shape that I was trying to work with."""     
+    two columns to 'melt' the data into the shape that I was trying to work with.
+    
+    IF THE TOOL FAILS HERE, CHECK THAT NOTING IS IN CELL B5"""     
+    
     df=df.set_index([2]).stack().unstack([0]).reset_index()
     df=df.rename(columns={None:'Dates'})
     df=df.melt(id_vars = ['index', 'Dates'])
-    
+    print("restacked data into desired format")
     """Added in some dynamic column name changes. 
     This helps drill with the two common variables of this dataset."""
     group = btable_dict[table]['group_type']
@@ -204,19 +217,20 @@ for table in btable_dict:
     
     df=df.rename(columns={2:group})
     df=df.rename(columns={'value':uom})
-    
-    """Adding in a new column with a repeating value to separate budget data from actual data"""
+    print("renamed all columns")
+    """adding in a new column with a repeating value to seperate budgets from actuals"""
     df=df.assign(productivity='Budget')
-    
+    print("added new column titled 'budget'")
     """The data set had this reoccurring month to date (MTD) 
     and year to date (YTD) calculation in it that was not needed. 
     The doesn't equal removes or filters out that calculation."""
     df=df[df.Dates != 'MTD']
     df=df[df.Dates != 'YTD']
-    
+    print("removed 'MTD' and YTD' columns")
     df.fillna(0) #making null values zero
     
     #print(df.info())
     
     """save the reshaped dataframe and changed the name to dynamically align with dict key"""
-    df.to_csv(r'C:\Users\tbarten\Desktop\Projects\Cost_Productivity\PyRun\Budget 2020 {0}.csv'.format(table))
+    df.to_csv(r'C:\Users\tbarten\Desktop\Projects\Cost_Productivity\PyRun\Budget 2019 {0}.csv'.format(table))
+    print("finished budget {}".format(table))
